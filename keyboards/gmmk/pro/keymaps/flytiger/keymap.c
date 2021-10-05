@@ -16,7 +16,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include QMK_KEYBOARD_H
 #include "rgb_matrix_map.h"
-
+#include "env.h"
+// TODO: program existing macros, use env file for pw - ref c usage, td for commenting code?
+// td hold on media button for next song?
+// Macros broken on macOs, word delete with ctrl + backspace on macOs
+// Dynamic macros, advance keycodes
 enum custom_layers {
     _BASE,
     _FN1,
@@ -24,14 +28,7 @@ enum custom_layers {
     _MO3,
 };
 
-enum custom_keycodes {
-    RGB_STA = SAFE_RANGE,
-    RGB_GRA,
-    RGB_CYC,
-    RGB_MSK,
-    KC_00,
-    KC_WINLCK,
-};
+enum custom_keycodes { RGB_STA = SAFE_RANGE, RGB_GRA, RGB_CYC, RGB_MSK, KC_00, KC_WINLCK, EMAIL, HIBERNATE, PIN };
 
 // Tap Dance Definitions
 enum custom_tapdance {
@@ -60,8 +57,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [_FN1] = LAYOUT(_______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_SLEP, KC_PWR, _______, RGB_STA, RGB_GRA, RGB_CYC, RGB_M_P, RGB_M_B, RGB_M_R, RGB_MSK, _______, _______, _______, _______, _______, _______, _______, RGB_TOG, RGB_HUD, RGB_VAI, RGB_HUI, _______, _______, _______, KC_PSCR, KC_SLCK, KC_PAUS, KC_NLCK, _______, _______, RESET, _______, KC_CAPS, RGB_SAD, RGB_VAD, RGB_SAI, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, RGB_SPD, RGB_SPI, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_PGUP, _______, _______, KC_WINLCK, _______, AG_TOGG, _______, _______, _______, KC_HOME, KC_PGDN, KC_END),
 
-    [_MO2] = LAYOUT(_______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______),
-
+    [_MO2] = LAYOUT(_______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, EMAIL, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, PIN, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, HIBERNATE, _______, _______, _______, _______, _______, _______, _______, _______, _______),
 
     [_MO3] = LAYOUT(_______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______),
 
@@ -107,6 +103,21 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 }
             } else
                 unregister_code16(keycode);
+            return false;  // Skip all further processing of this key
+        case EMAIL:
+            if (record->event.pressed) {
+                SEND_STRING(EMAIL_STRING);
+            }
+            return false;  // Skip all further processing of this key
+        case HIBERNATE:
+            if (record->event.pressed) {
+                SEND_STRING(SS_LGUI("x") SS_TAP(X_UP) SS_TAP(X_UP) SS_TAP(X_RGHT) SS_TAP(X_DOWN) SS_TAP(X_ENT));
+            }
+            return false;  // Skip all further processing of this key
+        case PIN:
+            if (record->event.pressed) {
+                SEND_STRING(" " SS_DELAY(200) PIN_STRING SS_TAP(X_ENT));
+            }
             return false;  // Skip all further processing of this key
         default:
             return true;  // Process all other keycodes normally
