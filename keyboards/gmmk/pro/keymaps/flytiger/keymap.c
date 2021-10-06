@@ -17,8 +17,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include QMK_KEYBOARD_H
 #include "rgb_matrix_map.h"
 #include "env.h"
-// TODO: 
-// restore karbiner on mac
+// TODO:
+// restore karbiner on mac, change back to virtual keyboard, make sure comment TD works
 // td for commenting code? td on capslock or /
 // td hold on media button for next song?
 // Dynamic macros, advance keycodes (Leader key)
@@ -34,19 +34,33 @@ enum custom_layers {
     _MO3,
 };
 
-enum custom_keycodes { RGB_STA = SAFE_RANGE, RGB_GRA, RGB_CYC, RGB_MSK, KC_00, KC_WINLCK, EMAIL, HIBERNATE, PIN };
+enum custom_keycodes { RGB_STA = SAFE_RANGE, RGB_GRA, RGB_CYC, RGB_MSK, KC_00, KC_WINLCK, CKC_EMAIL, CKC_HIBERNATE, CKC_PIN };
 
 // Tap Dance Definitions
 enum custom_tapdance {
-    TD_CAPSLOCK_MO,
+    TD_COMMENT_MO,
 };
 
+void dance_slsh_finished(qk_tap_dance_state_t *state, void *user_data) {
+    if (state->count == 1) {
+        register_code16(KC_SLSH);
+    } else {
+        SEND_STRING(SS_LCTL("/"));
+    }
+}
+
+void dance_slsh_reset(qk_tap_dance_state_t *state, void *user_data) {
+    if (state->count == 1) {
+        unregister_code16(KC_SLSH);
+    }
+}
+
+// All tap dance functions would go here. Only showing this one.
 qk_tap_dance_action_t tap_dance_actions[] = {
-    // Tap once for shift, twice for Caps Lock
-    [TD_CAPSLOCK_MO] = ACTION_TAP_DANCE_LAYER_TOGGLE(KC_CAPS, _MO2),
+    [TD_COMMENT_MO] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, dance_slsh_finished, dance_slsh_reset),
 };
 
-#define TD_CAPS TD(TD_CAPSLOCK_MO)
+#define TD_COMMENT TD(TD_COMMENT_MO)
 
 bool _isWinKeyDisabled = false;
 
@@ -59,13 +73,37 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     //      Sh_L              Z        X        C        V        B        N        M        ,        .        ?                 Sh_R     Up       End
     //      Ct_L     Win_L    Alt_L                               SPACE                               Alt_R    FN       Ct_R     Left     Down     Right
 
-    [_BASE] = LAYOUT(KC_ESC, KC_F1, KC_F2, KC_F3, KC_F4, KC_F5, KC_F6, KC_F7, KC_F8, KC_F9, KC_F10, KC_F11, KC_F12, KC_DEL, KC_MPLY, KC_GRV, KC_1, KC_2, KC_3, KC_4, KC_5, KC_6, KC_7, KC_8, KC_9, KC_0, KC_MINS, KC_EQL, KC_BSPC, KC_HOME, KC_TAB, KC_Q, KC_W, KC_E, KC_R, KC_T, KC_Y, KC_U, KC_I, KC_O, KC_P, KC_LBRC, KC_RBRC, KC_BSLS, KC_PGUP, KC_CAPS, KC_A, KC_S, KC_D, KC_F, KC_G, KC_H, KC_J, KC_K, KC_L, KC_SCLN, KC_QUOT, KC_ENT, KC_PGDN, KC_LSFT, KC_Z, KC_X, KC_C, KC_V, KC_B, KC_N, KC_M, KC_COMM, KC_DOT, KC_SLSH, KC_RSFT, KC_UP, KC_END, KC_LCTL, KC_LGUI, KC_LALT, KC_SPC, MO(_FN1), MO(_MO2), MO(_MO3), KC_LEFT, KC_DOWN, KC_RGHT),
+    [_BASE] = LAYOUT(
+        KC_ESC,  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,    KC_F6,   KC_F7,  KC_F8,   KC_F9,   KC_F10,   KC_F11,  KC_F12,   KC_DEL,           KC_MPLY, 
+        KC_GRV,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,     KC_6,    KC_7,   KC_8,    KC_9,    KC_0,     KC_MINS, KC_EQL,   KC_BSPC,          KC_HOME,
+        KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,     KC_Y,    KC_U,   KC_I,    KC_O,    KC_P,     KC_LBRC, KC_RBRC,  KC_BSLS,          KC_PGUP, 
+        KC_CAPS, KC_A,    KC_S,    KC_D,    KC_F,    KC_G,     KC_H,    KC_J,   KC_K,    KC_L,    KC_SCLN,  KC_QUOT,           KC_ENT,           KC_PGDN, 
+        KC_LSFT,          KC_Z,    KC_X,    KC_C,    KC_V,     KC_B,    KC_N,   KC_M,    KC_COMM, KC_DOT,   TD_COMMENT,        KC_RSFT, KC_UP,   KC_END, 
+        KC_LCTL, KC_LGUI, KC_LALT,                             KC_SPC,                            MO(_FN1), MO(_MO2),MO(_MO3), KC_LEFT, KC_DOWN, KC_RGHT),
 
-    [_FN1] = LAYOUT(_______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_SLEP, KC_PWR, _______, RGB_STA, RGB_GRA, RGB_CYC, RGB_M_P, RGB_M_B, RGB_M_R, RGB_MSK, _______, _______, _______, _______, _______, _______, _______, RGB_TOG, RGB_HUD, RGB_VAI, RGB_HUI, _______, _______, _______, KC_PSCR, KC_SLCK, KC_PAUS, KC_NLCK, _______, _______, RESET, _______, KC_CAPS, RGB_SAD, RGB_VAD, RGB_SAI, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, RGB_SPD, RGB_SPI, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_PGUP, _______, _______, KC_WINLCK, _______, AG_TOGG, _______, _______, _______, KC_HOME, KC_PGDN, KC_END),
+    [_FN1] = LAYOUT(
+        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_SLEP,            KC_PWR, 
+        _______, RGB_STA, RGB_GRA, RGB_CYC, RGB_M_P, RGB_M_B, RGB_M_R, RGB_MSK, _______, _______, _______, _______, _______, _______,            _______, 
+        RGB_TOG, RGB_HUD, RGB_VAI, RGB_HUI, _______, _______, _______, KC_PSCR, KC_SLCK, KC_PAUS, KC_NLCK, _______, _______, RESET,              _______, 
+        KC_CAPS, RGB_SAD, RGB_VAD, RGB_SAI, _______, _______, _______, _______, _______, _______, _______, _______,          _______,            _______,
+        _______,          RGB_SPD, RGB_SPI, _______, _______, _______, _______, _______, _______, _______, _______,      _______, KC_PGUP,   _______, 
+        _______, KC_WINLCK, _______,                             AG_TOGG,                           _______, _______, _______, KC_HOME, KC_PGDN, KC_END),
 
-    [_MO2] = LAYOUT(_______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, EMAIL, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, PIN, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, HIBERNATE, _______, _______, _______, _______, _______, _______, _______, _______, _______),
+    [_MO2] = LAYOUT(
+        _______, _______,   _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,            _______, 
+        _______, _______, CKC_EMAIL, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,            _______, 
+        _______, _______,   _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,            _______, 
+        _______, _______,   _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          CKC_PIN,            _______, 
+        _______,            _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          _______, _______,   _______, 
+        CKC_HIBERNATE, _______, _______,                         _______,                           _______, _______, _______, _______, _______,   _______),
 
-    [_MO3] = LAYOUT(_______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______),
+    [_MO3] = LAYOUT(
+        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,            _______, 
+        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,            _______, 
+        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,            _______, 
+        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          _______,            _______, 
+        _______,          _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          _______, _______,   _______, 
+        _______, _______, _______,                             _______,                           _______, _______, _______, _______, _______,   _______),
 
 };
 
@@ -110,17 +148,17 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             } else
                 unregister_code16(keycode);
             return false;  // Skip all further processing of this key
-        case EMAIL:
+        case CKC_EMAIL:
             if (record->event.pressed) {
                 SEND_STRING(EMAIL_STRING);
             }
             return false;  // Skip all further processing of this key
-        case HIBERNATE:
+        case CKC_HIBERNATE:
             if (record->event.pressed) {
                 SEND_STRING(SS_LGUI("x") SS_TAP(X_UP) SS_TAP(X_UP) SS_TAP(X_RGHT) SS_TAP(X_DOWN) SS_TAP(X_ENT));
             }
             return false;  // Skip all further processing of this key
-        case PIN:
+        case CKC_PIN:
             if (record->event.pressed) {
                 SEND_STRING(" " SS_DELAY(200) PIN_STRING SS_TAP(X_ENT));
             }
