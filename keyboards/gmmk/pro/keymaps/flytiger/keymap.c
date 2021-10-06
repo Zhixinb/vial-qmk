@@ -17,10 +17,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include QMK_KEYBOARD_H
 #include "rgb_matrix_map.h"
 #include "env.h"
-// TODO: program existing macros, use env file for pw - ref c usage, td for commenting code?
+// TODO: 
+// restore karbiner on mac
+// td for commenting code? td on capslock or /
 // td hold on media button for next song?
-// Macros broken on macOs, word delete with ctrl + backspace on macOs
-// Dynamic macros, advance keycodes
+// Dynamic macros, advance keycodes (Leader key)
+// Space Cadet Shift / tap-hold & osk shift (light for osk) / mod-tap
+// OSK for MOs, Mo2 arrows be windows + arrows (light for osk)
+// word delete with ctrl + backspace on macOs
+// MO3 toggle layer with MO0 for Windows/Mac layout switch (modifer switch, macros from mac -> win), slowly remove Karbiner, Mac shortcut, switched mod layouts
+
 enum custom_layers {
     _BASE,
     _FN1,
