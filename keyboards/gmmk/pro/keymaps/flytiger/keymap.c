@@ -18,7 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "rgb_matrix_map.h"
 #include "env.h"
 // TODO:
-// advance keycodes (Leader key: CTL+:)
+// light for while recording macro (red) and while running (green/white): https://www.reddit.com/r/MechanicalKeyboards/comments/f4mk5t/qmk_docsexamples_on_blinking_led_during_dynamic/
+// advance keycodes (Leader key: CTL+:    cmd: gc for git commit, ga for git status and git add )
 // MO3 toggle layer with MO0 for Windows/Mac layout switch (modifer switch, macros from mac -> win), slowly remove Karbiner, Mac shortcut, switched mod layouts
 
 enum custom_layers {
@@ -60,6 +61,9 @@ qk_tap_dance_action_t tap_dance_actions[] = {
 #define TD_HOME TD(TD_HOME_MO)
 #define OSM_LCTL OSM(MOD_LCTL)
 #define OSM_LALT OSM(MOD_LALT)
+#define OSM_FN1 OSL(_FN1)
+#define OSM_MO2 OSL(_MO2)
+#define OSM_MO3 OSL(_MO3)
 
 bool _isWinKeyDisabled = false;
 bool _isLCtlOsmActived = false;
@@ -80,7 +84,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,     KC_Y,    KC_U,   KC_I,    KC_O,    KC_P,     KC_LBRC, KC_RBRC,  KC_BSLS,          KC_PGUP, 
         KC_CAPS, KC_A,    KC_S,    KC_D,    KC_F,    KC_G,     KC_H,    KC_J,   KC_K,    KC_L,    KC_SCLN,  KC_QUOT,           KC_ENT,           KC_PGDN, 
         KC_LSPO,          KC_Z,    KC_X,    KC_C,    KC_V,     KC_B,    KC_N,   KC_M,    KC_COMM, KC_DOT,   TD_SLSH,           KC_RSPC, KC_UP,   KC_END, 
-        OSM_LCTL,KC_LGUI, OSM_LALT,                            KC_SPC,                            MO(_FN1), MO(_MO2),MO(_MO3), KC_LEFT, KC_DOWN, KC_RGHT),
+        OSM_LCTL,KC_LGUI, OSM_LALT,                            KC_SPC,                            OSM_FN1,  OSM_MO2, OSM_MO3,  KC_LEFT, KC_DOWN, KC_RGHT),
 
     [_FN1] = LAYOUT(
         _______, DM_REC1, DM_REC2, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,            _______, 
@@ -241,6 +245,22 @@ void rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
         rgb_matrix_set_color(LED_RALT, RGB_RED);
     }
 
+    if (layer_state_is(_MO2)) {
+        rgb_matrix_set_color(LED_R5, RGB_AZURE);
+        rgb_matrix_set_color(LED_R6, RGB_AZURE);
+        rgb_matrix_set_color(LED_R7, RGB_AZURE);
+        rgb_matrix_set_color(LED_R8, RGB_AZURE);
+        rgb_matrix_set_color(LED_FN, RGB_AZURE);
+    }
+
+    if (layer_state_is(_MO3)) {
+        rgb_matrix_set_color(LED_R5, RGB_ORANGE);
+        rgb_matrix_set_color(LED_R6, RGB_ORANGE);
+        rgb_matrix_set_color(LED_R7, RGB_ORANGE);
+        rgb_matrix_set_color(LED_R8, RGB_ORANGE);
+        rgb_matrix_set_color(LEB_RCTL, RGB_ORANGE);
+    }
+
     switch (get_highest_layer(layer_state)) {  // special handling per layer
         case _FN1:                             // on Fn layer select what the encoder does when pressed
             // Add RGB Timeout Indicator -- shows 0 to 139 using F row and num row;  larger numbers using 16bit code
@@ -258,18 +278,8 @@ void rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
             // for (uint8_t i = 0; i < sizeof(LED_LIST_NUMPAD) / sizeof(LED_LIST_NUMPAD[0]); i++) {
             //     rgb_matrix_set_color(LED_LIST_NUMPAD[i], RGB_MAGENTA);
             // }
-            rgb_matrix_set_color(LED_R5, RGB_AZURE);
-            rgb_matrix_set_color(LED_R6, RGB_AZURE);
-            rgb_matrix_set_color(LED_R7, RGB_AZURE);
-            rgb_matrix_set_color(LED_R8, RGB_AZURE);
-            rgb_matrix_set_color(LED_FN, RGB_AZURE);
             break;
         case _MO3:
-            rgb_matrix_set_color(LED_R5, RGB_ORANGE);
-            rgb_matrix_set_color(LED_R6, RGB_ORANGE);
-            rgb_matrix_set_color(LED_R7, RGB_ORANGE);
-            rgb_matrix_set_color(LED_R8, RGB_ORANGE);
-            rgb_matrix_set_color(LEB_RCTL, RGB_ORANGE);
             break;
         default:
             break;
