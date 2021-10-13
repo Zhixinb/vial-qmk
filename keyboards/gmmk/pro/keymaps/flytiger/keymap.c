@@ -18,11 +18,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "rgb_matrix_map.h"
 #include "env.h"
 // TODO:
-// restore karbiner on mac, change back to virtual keyboard, make sure comment TD works
+// Space Cadet Shift - done / tap-hold & OSK shift (light for osk) / mod-tap / shift (tap - space cadet, hold osk w/ light),  ctrl+win+alt (osk), MOs (osk w/ light)
 // Dynamic macros, advance keycodes (Leader key)
-// Space Cadet Shift / tap-hold & osk shift (light for osk) / mod-tap
 // OSK for MOs, Mo2 arrows be windows + arrows (light for osk)
-// word delete with ctrl + backspace on macOs
 // MO3 toggle layer with MO0 for Windows/Mac layout switch (modifer switch, macros from mac -> win), slowly remove Karbiner, Mac shortcut, switched mod layouts
 
 enum custom_layers {
@@ -62,8 +60,12 @@ qk_tap_dance_action_t tap_dance_actions[] = {
 
 #define TD_SLSH TD(TD_SLSH_MO)
 #define TD_HOME TD(TD_HOME_MO)
+#define OSM_LCTL OSM(MOD_LCTL)
+#define OSM_LALT OSM(MOD_LALT)
 
 bool _isWinKeyDisabled = false;
+bool _isLCtlOsmActived = false;
+bool _isLAltOsmActived = false;
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
@@ -80,7 +82,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,     KC_Y,    KC_U,   KC_I,    KC_O,    KC_P,     KC_LBRC, KC_RBRC,  KC_BSLS,          KC_PGUP, 
         KC_CAPS, KC_A,    KC_S,    KC_D,    KC_F,    KC_G,     KC_H,    KC_J,   KC_K,    KC_L,    KC_SCLN,  KC_QUOT,           KC_ENT,           KC_PGDN, 
         KC_LSPO,          KC_Z,    KC_X,    KC_C,    KC_V,     KC_B,    KC_N,   KC_M,    KC_COMM, KC_DOT,   TD_SLSH,           KC_RSPC, KC_UP,   KC_END, 
-        KC_LCTL, KC_LGUI, KC_LALT,                             KC_SPC,                            MO(_FN1), MO(_MO2),MO(_MO3), KC_LEFT, KC_DOWN, KC_RGHT),
+        OSM_LCTL,KC_LGUI, OSM_LALT,                            KC_SPC,                            MO(_FN1), MO(_MO2),MO(_MO3), KC_LEFT, KC_DOWN, KC_RGHT),
 
     [_FN1] = LAYOUT(
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,            _______, 
@@ -169,6 +171,20 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
 }
 
+void oneshot_mods_changed_user(uint8_t mods) {  
+    if (mods & MOD_MASK_CTRL) {
+        _isLCtlOsmActived = true;
+    }
+    if (mods & MOD_MASK_ALT) {
+        _isLAltOsmActived = true;
+    }
+    if (!mods) {
+        _isLCtlOsmActived = false;
+        _isLAltOsmActived = false;
+    }
+}
+
+
 #ifdef RGB_MATRIX_ENABLE
 // Capslock, Scroll lock and Numlock  indicator on Left side lights.
 void rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
@@ -188,6 +204,14 @@ void rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
     }
     if (_isWinKeyDisabled) {
         rgb_matrix_set_color(LED_LGUI, RGB_RED);  // light up Win key when disabled
+    }
+
+    if (_isLCtlOsmActived) {
+        rgb_matrix_set_color(LED_LCTL, RGB_AZURE);
+    }
+
+    if (_isLAltOsmActived) {
+        rgb_matrix_set_color(LED_LALT, RGB_AZURE);
     }
 
     // Layer indicators on right side lights.
