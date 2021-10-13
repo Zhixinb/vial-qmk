@@ -18,9 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "rgb_matrix_map.h"
 #include "env.h"
 // TODO:
-// Space Cadet Shift - done / tap-hold & OSK shift (light for osk) / mod-tap / shift (tap - space cadet, hold osk w/ light),  ctrl+win+alt (osk), MOs (osk w/ light)
-// Dynamic macros, advance keycodes (Leader key)
-// OSK for MOs, Mo2 arrows be windows + arrows (light for osk)
+// advance keycodes (Leader key: CTL+:)
 // MO3 toggle layer with MO0 for Windows/Mac layout switch (modifer switch, macros from mac -> win), slowly remove Karbiner, Mac shortcut, switched mod layouts
 
 enum custom_layers {
@@ -30,7 +28,7 @@ enum custom_layers {
     _MO3,
 };
 
-enum custom_keycodes { RGB_STA = SAFE_RANGE, RGB_GRA, RGB_CYC, RGB_MSK, KC_00, KC_WINLCK, CKC_EMAIL, CKC_HIBERNATE, CKC_PIN };
+enum custom_keycodes { RGB_STA = SAFE_RANGE, RGB_GRA, RGB_CYC, RGB_MSK, KC_00, KC_WINLCK, CKC_EMAIL, CKC_HIBERNATE, CKC_PIN, CKC_WUP, CKC_WLFT, CKC_DWN, CKC_RGT };
 
 // Tap Dance Definitions
 enum custom_tapdance {
@@ -85,20 +83,20 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         OSM_LCTL,KC_LGUI, OSM_LALT,                            KC_SPC,                            MO(_FN1), MO(_MO2),MO(_MO3), KC_LEFT, KC_DOWN, KC_RGHT),
 
     [_FN1] = LAYOUT(
-        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,            _______, 
+        _______, DM_REC1, DM_REC2, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,            _______, 
         _______, RGB_STA, RGB_GRA, RGB_CYC, RGB_M_P, RGB_M_B, RGB_M_R, RGB_MSK, _______, _______, _______, _______, _______, _______,            _______, 
         RGB_TOG, RGB_HUD, RGB_VAI, RGB_HUI, _______, _______, _______, KC_PSCR, KC_SLCK, KC_PAUS, KC_NLCK, _______, _______, RESET,              _______, 
         KC_CAPS, RGB_SAD, RGB_VAD, RGB_SAI, _______, _______, _______, _______, _______, _______, _______, _______,          _______,            _______,
-        _______,          RGB_SPD, RGB_SPI, _______, _______, _______, _______, _______, _______, _______, _______,      _______, KC_PGUP,   _______, 
-        _______, KC_WINLCK, _______,                             AG_TOGG,                           _______, _______, _______, KC_HOME, KC_PGDN, KC_END),
+        _______,          RGB_SPD, RGB_SPI, _______, _______, _______, _______, _______, _______, _______, _______,          _______, _______,   _______, 
+        _______, KC_WINLCK, _______,                             AG_TOGG,                         _______, _______, _______, _______, _______, _______),
 
     [_MO2] = LAYOUT(
-        _______, _______,   _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,            _______, 
+        _______, DM_PLY1,   DM_PLY2, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,            _______, 
         _______, _______, CKC_EMAIL, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,            _______, 
         _______, _______,   _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,            _______, 
         _______, _______,   _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          CKC_PIN,            _______, 
-        _______,            _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          _______, _______,   _______, 
-        CKC_HIBERNATE, _______, _______,                         _______,                           _______, _______, _______, _______, _______,   _______),
+        _______,            _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          _______, CKC_WUP,   _______, 
+        CKC_HIBERNATE, _______, _______,                         _______,                           _______, _______, _______, CKC_WLFT,CKC_DWN,   CKC_RGT),
 
     [_MO3] = LAYOUT(
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,            _______, 
@@ -164,6 +162,26 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case CKC_PIN:
             if (record->event.pressed) {
                 SEND_STRING(" " SS_DELAY(200) PIN_STRING SS_TAP(X_ENT));
+            }
+            return false;  // Skip all further processing of this key
+        case CKC_WUP:
+            if (record->event.pressed) {
+                SEND_STRING(SS_DOWN(X_LGUI) SS_TAP(X_UP) SS_UP(X_LGUI));
+            }
+            return false;  // Skip all further processing of this key
+        case CKC_WLFT:
+            if (record->event.pressed) {
+                SEND_STRING(SS_DOWN(X_LGUI) SS_TAP(X_LEFT) SS_UP(X_LGUI));
+            }
+            return false;  // Skip all further processing of this key
+        case CKC_DWN:
+            if (record->event.pressed) {
+                SEND_STRING(SS_DOWN(X_LGUI) SS_TAP(X_DOWN) SS_UP(X_LGUI));
+            }
+            return false;  // Skip all further processing of this key
+        case CKC_RGT:
+            if (record->event.pressed) {
+                SEND_STRING(SS_DOWN(X_LGUI) SS_TAP(X_RGHT) SS_UP(X_LGUI));
             }
             return false;  // Skip all further processing of this key
         default:
