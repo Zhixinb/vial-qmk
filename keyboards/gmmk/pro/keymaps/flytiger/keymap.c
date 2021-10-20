@@ -15,7 +15,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include QMK_KEYBOARD_H
-#include "g/keymap_combo.h"
 #include "rgb_matrix_map.h"
 #include "env.h"
 // TODO:
