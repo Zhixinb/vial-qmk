@@ -29,7 +29,7 @@ enum custom_layers {
     _MO3,
 };
 
-enum custom_keycodes { RGB_STA = SAFE_RANGE, RGB_GRA, RGB_CYC, RGB_MSK, KC_00, KC_WINLCK, CKC_EMAIL, CKC_HIBERNATE, CKC_PIN, CKC_WUP, CKC_WLFT, CKC_DWN, CKC_RGT };
+enum custom_keycodes { RGB_STA = SAFE_RANGE, RGB_GRA, RGB_CYC, RGB_MSK, KC_00, KC_WINLCK, CKC_EMAIL, CKC_HIBERNATE, CKC_PIN, CKC_WUP, CKC_WLFT, CKC_DWN, CKC_RGT, CKC_DELL };
 
 // Leader Key 
 LEADER_EXTERNS();
@@ -58,7 +58,7 @@ void matrix_scan_user(void) {
         }   
         SEQ_TWO_KEYS(KC_B, KC_R) {          
             SEND_STRING(RELEASE_STRING SS_TAP(X_ENT));    
-        }   
+        }
     }
 }
 
@@ -201,16 +201,16 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         OSM_LCTL,KC_LGUI, OSM_LALT,                            KC_SPC,                            OSM_FN1,  OSM_MO2, OSM_MO3,  KC_LEFT, KC_DOWN, KC_RGHT),
 
     [_FN1] = LAYOUT(
-        _______, DM_REC1, DM_REC2, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,            _______, 
+        RESET,   DM_REC1, DM_REC2, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,            _______, 
         _______, RGB_STA, RGB_GRA, RGB_CYC, RGB_M_P, RGB_M_B, RGB_M_R, RGB_MSK, _______, _______, _______, _______, _______, _______,            _______, 
-        RGB_TOG, RGB_HUD, RGB_VAI, RGB_HUI, _______, _______, _______, KC_PSCR, KC_SLCK, KC_PAUS, KC_NLCK, _______, _______, RESET,              _______, 
+        RGB_TOG, RGB_HUD, RGB_VAI, RGB_HUI, _______, _______, _______, KC_PSCR, KC_SLCK, KC_PAUS, KC_NLCK, _______, _______, _______,            _______, 
         KC_CAPS, RGB_SAD, RGB_VAD, RGB_SAI, _______, _______, _______, _______, _______, _______, _______, _______,          _______,            _______,
         _______,          RGB_SPD, RGB_SPI, _______, _______, _______, _______, _______, _______, _______, _______,          _______, _______,   _______, 
         _______, KC_WINLCK, _______,                             AG_TOGG,                         _______, _______, _______, _______, _______, _______),
 
     [_MO2] = LAYOUT(
         _______, DM_PLY1,   DM_PLY2, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,            _______, 
-        _______, _______, CKC_EMAIL, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,            _______, 
+        _______, _______, CKC_EMAIL, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, CKC_DELL,            _______, 
         _______, _______,   _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,            _______, 
         _______, _______,   _______, _______, _______, _______, _______, _______, _______, _______, KC_LEAD, _______,          CKC_PIN,            _______, 
         _______,            _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          _______, CKC_WUP,   _______, 
@@ -300,6 +300,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case CKC_RGT:
             if (record->event.pressed) {
                 SEND_STRING(SS_DOWN(X_LGUI) SS_TAP(X_RGHT) SS_UP(X_LGUI));
+            }
+            return false;  // Skip all further processing of this key
+        case CKC_DELL:
+            if (record->event.pressed) {
+                SEND_STRING(SS_TAP(X_END));
+                SEND_STRING(SS_DOWN(X_LSFT) SS_TAP(X_HOME) SS_UP(X_LSFT));
+                SEND_STRING(SS_TAP(X_BSPC));
             }
             return false;  // Skip all further processing of this key
         default:
