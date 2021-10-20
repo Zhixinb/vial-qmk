@@ -15,13 +15,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include QMK_KEYBOARD_H
+#include "g/keymap_combo.h"
 #include "rgb_matrix_map.h"
 #include "env.h"
 // TODO:
-// advance keycodes (Leader key: MO1/2+:    cmd: gc for git commit, ga for git status and git add ) with light
 // light for while recording macro (red) and while running (green/white): https://www.reddit.com/r/MechanicalKeyboards/comments/f4mk5t/qmk_docsexamples_on_blinking_led_during_dynamic/
 // MO3 toggle layer with MO0 for Windows/Mac layout switch (modifer switch, macros from mac -> win), slowly remove Karbiner, Mac shortcut, switched mod layouts
-// line copy, line delete with shift backspace/enter
+// line copy, line delete with shift backspace/enter using combos
 // refactor each feature into own file with include
 enum custom_layers {
     _BASE,
@@ -39,6 +39,7 @@ void matrix_scan_user(void) {
         leading = false;    
         leader_end();    
         
+        // GIT
         SEQ_TWO_KEYS(KC_G, KC_S) {          
             SEND_STRING("git status"SS_TAP(X_ENT));    
         }    
@@ -48,7 +49,29 @@ void matrix_scan_user(void) {
         SEQ_TWO_KEYS(KC_G, KC_C) {          
             SEND_STRING("git commit -m \"\""SS_TAP(X_LEFT));    
         }   
+
+        // CMD
+        SEQ_THREE_KEYS(KC_B, KC_C, KC_R) {          
+            SEND_STRING(CLEAN_RELEASE_STRING SS_TAP(X_ENT));    
+        }   
+        SEQ_TWO_KEYS(KC_B, KC_C) {          
+            SEND_STRING(CLEAN_STRING SS_TAP(X_ENT));    
+        }   
+        SEQ_TWO_KEYS(KC_B, KC_R) {          
+            SEND_STRING(RELEASE_STRING SS_TAP(X_ENT));    
+        }   
     }
+}
+
+bool _isLeaderOn = false;
+
+void leader_start(void) {  
+    // sequence started
+    _isLeaderOn = true;
+}
+void leader_end(void) {  
+    // sequence ended (no success/failure detection)
+    _isLeaderOn = false;
 }
 
 
@@ -326,6 +349,10 @@ void rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
 
     if (_isLAltOsmActived) {
         rgb_matrix_set_color(LED_LALT, RGB_AZURE);
+    }
+
+    if (_isLeaderOn) {
+        rgb_matrix_set_color(LED_SCLN, RGB_RED);
     }
 
     // Layer indicators on right side lights.

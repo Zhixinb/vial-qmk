@@ -28,3 +28,6 @@ RGB_MATRIX_CUSTOM_USER = yes
 DYNAMIC_MACRO_ENABLE = yes
 
 LEADER_ENABLE = yes
+
+VPATH += keyboards/gboards/
+COMBO_ENABLE = yes
