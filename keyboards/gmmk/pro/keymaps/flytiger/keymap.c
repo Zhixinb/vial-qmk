@@ -48,6 +48,9 @@ void matrix_scan_user(void) {
         SEQ_TWO_KEYS(KC_G, KC_C) {          
             SEND_STRING("git commit -m \"\""SS_TAP(X_LEFT));    
         }   
+        SEQ_TWO_KEYS(KC_G, KC_P) {          
+            SEND_STRING("git push ");    
+        }
 
         // CMD
         SEQ_THREE_KEYS(KC_B, KC_C, KC_R) {          
