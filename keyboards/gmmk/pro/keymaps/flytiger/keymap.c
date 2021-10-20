@@ -18,10 +18,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "rgb_matrix_map.h"
 #include "env.h"
 // TODO:
+// advance keycodes (Leader key: MO1/2+:    cmd: gc for git commit, ga for git status and git add ) with light
 // light for while recording macro (red) and while running (green/white): https://www.reddit.com/r/MechanicalKeyboards/comments/f4mk5t/qmk_docsexamples_on_blinking_led_during_dynamic/
-// advance keycodes (Leader key: TAB/ALT+:    cmd: gc for git commit, ga for git status and git add ) with light
 // MO3 toggle layer with MO0 for Windows/Mac layout switch (modifer switch, macros from mac -> win), slowly remove Karbiner, Mac shortcut, switched mod layouts
-
+// line copy, line delete with shift backspace/enter
+// refactor each feature into own file with include
 enum custom_layers {
     _BASE,
     _FN1,
@@ -30,6 +31,26 @@ enum custom_layers {
 };
 
 enum custom_keycodes { RGB_STA = SAFE_RANGE, RGB_GRA, RGB_CYC, RGB_MSK, KC_00, KC_WINLCK, CKC_EMAIL, CKC_HIBERNATE, CKC_PIN, CKC_WUP, CKC_WLFT, CKC_DWN, CKC_RGT };
+
+// Leader Key 
+LEADER_EXTERNS();
+void matrix_scan_user(void) {  
+    LEADER_DICTIONARY() {    
+        leading = false;    
+        leader_end();    
+        
+        SEQ_TWO_KEYS(KC_G, KC_S) {          
+            SEND_STRING("git status"SS_TAP(X_ENT));    
+        }    
+        SEQ_TWO_KEYS(KC_G, KC_A) {          
+            SEND_STRING("git add ");    
+        }   
+        SEQ_TWO_KEYS(KC_G, KC_C) {          
+            SEND_STRING("git commit -m \"\""SS_TAP(X_LEFT));    
+        }   
+    }
+}
+
 
 // Tap Dance Definitions
 enum custom_tapdance {
@@ -169,7 +190,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, DM_PLY1,   DM_PLY2, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,            _______, 
         _______, _______, CKC_EMAIL, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,            _______, 
         _______, _______,   _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,            _______, 
-        _______, _______,   _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          CKC_PIN,            _______, 
+        _______, _______,   _______, _______, _______, _______, _______, _______, _______, _______, KC_LEAD, _______,          CKC_PIN,            _______, 
         _______,            _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          _______, CKC_WUP,   _______, 
         CKC_HIBERNATE, _______, _______,                         _______,                           _______, _______, _______, CKC_WLFT,CKC_DWN,   CKC_RGT),
 
@@ -177,7 +198,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,            _______, 
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,            _______, 
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,            _______, 
-        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          _______,            _______, 
+        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_LEAD, _______,          _______,            _______, 
         _______,          _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          _______, _______,   _______, 
         _______, _______, _______,                             _______,                           _______, _______, _______, _______, _______,   _______),
 
