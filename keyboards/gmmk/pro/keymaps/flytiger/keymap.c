@@ -21,7 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // light for while recording macro (red) and while running (green/white): https://www.reddit.com/r/MechanicalKeyboards/comments/f4mk5t/qmk_docsexamples_on_blinking_led_during_dynamic/
 // advance keycodes (Leader key: TAB/ALT+:    cmd: gc for git commit, ga for git status and git add ) with light
 // MO3 toggle layer with MO0 for Windows/Mac layout switch (modifer switch, macros from mac -> win), slowly remove Karbiner, Mac shortcut, switched mod layouts
-// change tapdance for comment from double tap to single hold
 
 enum custom_layers {
     _BASE,
@@ -40,17 +39,13 @@ enum custom_tapdance {
     TD_RIGHT_MO,
 };
 
-void dance_slsh_finished(qk_tap_dance_state_t *state, void *user_data) {
-    if (state->count == 1) {
-        register_code16(KC_SLSH);
+void slsh(qk_tap_dance_state_t *state, void *user_data) {
+    if (state->count == 1 && state->pressed) {
+        SEND_STRING(SS_LCTL("/")); // hold
     } else {
-        SEND_STRING(SS_LCTL("/"));
-    }
-}
-
-void dance_slsh_reset(qk_tap_dance_state_t *state, void *user_data) {
-    if (state->count == 1) {
-        unregister_code16(KC_SLSH);
+        for (uint8_t i = 0; i < state->count; i++) {
+            SEND_STRING("/");
+        }
     }
 }
 
@@ -125,7 +120,7 @@ void shift2_reset (qk_tap_dance_state_t* state, void* user_data) {
 
 // All tap dance functions would go here. Only showing this one.
 qk_tap_dance_action_t tap_dance_actions[] = {
-    [TD_SLSH_MO] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, dance_slsh_finished, dance_slsh_reset),
+    [TD_SLSH_MO] = ACTION_TAP_DANCE_FN(slsh),
     [TD_HOME_MO] = ACTION_TAP_DANCE_DOUBLE(KC_HOME, KC_MNXT),
     [TD_LEFT_MO]  = ACTION_TAP_DANCE_FN_ADVANCED(NULL, left, shift1_reset),
     [TD_RIGHT_MO] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, right, shift2_reset),
