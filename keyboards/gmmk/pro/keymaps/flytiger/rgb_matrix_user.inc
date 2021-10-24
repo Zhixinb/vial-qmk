@@ -159,7 +159,6 @@ const uint8_t LED_LIST_KEY_MASK_1[] = {
     LED_O,
     LED_P,
     LED_LGUI,   // 68, Gui_L, l11
-    LED_SPC,    // 72, Space, k65
 };
 
 const uint8_t LED_LIST_KEY_MASK_2[] = {
@@ -177,6 +176,7 @@ const uint8_t LED_LIST_KEY_MASK_2[] = {
 
 const uint8_t LED_LIST_KEY_MASK_3[] = {
     LED_SCLN,   // 63, ;, k81
+    LED_C,
 };
 
 static bool indicator_static(effect_params_t* params) {

@@ -18,10 +18,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "rgb_matrix_map.h"
 #include "env.h"
 // TODO:
-// keep leaderkey with empty dictionary, manual verbose combo? adjust the timing for reduce false positive and false negatives
-// move leader key stuff into combos, 
-// add: git status (gs), git add (ga), git commit -m (gc), git push (gp), git switch (gw), git branch (gb), git checkout -b (gn), git commit --amend (gc), git rebase -i (gr) 
-// bc, br, bcr
 // light for while recording macro (red) and while running (green/white): https://www.reddit.com/r/MechanicalKeyboards/comments/f4mk5t/qmk_docsexamples_on_blinking_led_during_dynamic/
 // MO3 toggle layer with MO0 for Windows/Mac layout switch (modifer switch, macros from mac -> win), slowly remove Karbiner, Mac shortcut, switched mod layouts
 // refactor each feature into own file with include
@@ -34,6 +30,133 @@ enum custom_layers {
 
 enum custom_keycodes { RGB_STA = SAFE_RANGE, RGB_GRA, RGB_CYC, RGB_MSK, KC_00, KC_WINLCK, CKC_EMAIL, CKC_HIBERNATE, CKC_PIN, CKC_WUP, CKC_WLFT, CKC_DWN, CKC_RGT, CKC_DELL };
 
+// Combos
+enum combo_events {
+  GIT_STATUS,
+  GIT_ADD,
+  GIT_CMT,
+  GIT_PUSH,
+  GIT_SWTCH,
+  GIT_BRCH,
+  GIT_CHKOUT,
+  GIT_AMND,
+  GIT_REBASE,
+  GIT_ADOG,
+  B_C,
+  B_R,
+  B_C_R,
+  B_W_S,
+  COMBO_LENGTH
+};
+
+const uint16_t PROGMEM git_status_combo[] = {KC_G, KC_S, COMBO_END};
+const uint16_t PROGMEM git_add_combo[] = {KC_G, KC_A, COMBO_END};
+const uint16_t PROGMEM git_comment_combo[] = {KC_G, KC_C, COMBO_END};
+const uint16_t PROGMEM git_push_combo[] = {KC_G, KC_P, COMBO_END};
+const uint16_t PROGMEM git_swtch_combo[] = {KC_G, KC_W, COMBO_END};
+const uint16_t PROGMEM git_brch_combo[] = {KC_G, KC_B, COMBO_END};
+const uint16_t PROGMEM git_chkout_combo[] = {KC_G, KC_K, COMBO_END};
+const uint16_t PROGMEM git_amnd_combo[] = {KC_G, KC_M, COMBO_END};
+const uint16_t PROGMEM git_rebase_combo[] = {KC_G, KC_R, COMBO_END};
+const uint16_t PROGMEM git_adog_combo[] = {KC_G, KC_L, COMBO_END};
+const uint16_t PROGMEM b_c_combo[] = {KC_B, KC_C, COMBO_END};
+const uint16_t PROGMEM b_r_combo[] = {KC_B, KC_R, COMBO_END};
+const uint16_t PROGMEM b_c_r_combo[] = {KC_B, KC_ENT, COMBO_END};
+const uint16_t PROGMEM b_w_s_combo[] = {KC_B, KC_W, COMBO_END};
+combo_t key_combos[] = {
+  [GIT_STATUS] = COMBO_ACTION(git_status_combo),
+  [GIT_ADD] = COMBO_ACTION(git_add_combo),
+  [GIT_CMT] = COMBO_ACTION(git_comment_combo),
+  [GIT_PUSH] = COMBO_ACTION(git_push_combo),
+  [GIT_SWTCH] = COMBO_ACTION(git_swtch_combo),
+  [GIT_BRCH] = COMBO_ACTION(git_brch_combo),
+  [GIT_CHKOUT] = COMBO_ACTION(git_chkout_combo),
+  [GIT_AMND] = COMBO_ACTION(git_amnd_combo),
+  [GIT_REBASE] = COMBO_ACTION(git_rebase_combo),
+  [GIT_ADOG] = COMBO_ACTION(git_adog_combo),
+  [B_C] = COMBO_ACTION(b_c_combo),
+  [B_R] = COMBO_ACTION(b_r_combo),
+  [B_C_R] = COMBO_ACTION(b_c_r_combo),
+  [B_W_S] = COMBO_ACTION(b_w_s_combo),
+};
+/* COMBO_ACTION(x) is same as COMBO(x, KC_NO) */
+void process_combo_event(uint16_t combo_index, bool pressed) {
+  switch(combo_index) {
+    case GIT_STATUS:
+      if (pressed) {
+        SEND_STRING("git status");    
+      }
+      break;
+    case GIT_ADD:
+      if (pressed) {
+        SEND_STRING("git add ");    
+      }
+      break;
+    case GIT_CMT:
+      if (pressed) {
+        SEND_STRING("git commit -m \"\""SS_TAP(X_LEFT));    
+      }
+      break;
+    case GIT_PUSH:
+      if (pressed) {
+        SEND_STRING("git push ");    
+      }
+      break;
+    case GIT_SWTCH:
+      if (pressed) {
+        SEND_STRING("git switch ");    
+      }
+      break;
+    case GIT_BRCH:
+      if (pressed) {
+        SEND_STRING("git branch");    
+      }
+      break;
+    case GIT_CHKOUT:
+      if (pressed) {
+        SEND_STRING("git checkout -b ");    
+      }
+      break;
+    case GIT_AMND:
+      if (pressed) {
+        SEND_STRING("git commit --amend");    
+      }
+      break;
+    case GIT_REBASE:
+      if (pressed) {
+        SEND_STRING("git rebase -i ");    
+      }
+      break;      
+    case GIT_ADOG:
+      if (pressed) {
+        SEND_STRING("git log --all --decorate --oneline --graph");    
+      }
+      break;                    
+    case B_C:
+      if (pressed) {
+        SEND_STRING(CLEAN_STRING);    
+      }
+      break;
+    case B_R:
+      if (pressed) {
+        SEND_STRING(RELEASE_STRING);    
+      }
+      break;
+    case B_C_R:
+      if (pressed) {
+        SEND_STRING(CLEAN_RELEASE_STRING);    
+      }
+      break;
+    case B_W_S:
+      if (pressed) {
+        SEND_STRING(BWS_STRING);    
+      }
+      break;  
+  }
+}
+
+
+
 // Leader Key 
 LEADER_EXTERNS();
 void matrix_scan_user(void) {  
@@ -41,30 +164,6 @@ void matrix_scan_user(void) {
         leading = false;    
         leader_end();    
         
-        // GIT
-        SEQ_TWO_KEYS(KC_G, KC_S) {          
-            SEND_STRING("git status"SS_TAP(X_ENT));    
-        }    
-        SEQ_TWO_KEYS(KC_G, KC_A) {          
-            SEND_STRING("git add ");    
-        }   
-        SEQ_TWO_KEYS(KC_G, KC_C) {          
-            SEND_STRING("git commit -m \"\""SS_TAP(X_LEFT));    
-        }   
-        SEQ_TWO_KEYS(KC_G, KC_P) {          
-            SEND_STRING("git push ");    
-        }
-
-        // CMD
-        SEQ_THREE_KEYS(KC_B, KC_C, KC_R) {          
-            SEND_STRING(CLEAN_RELEASE_STRING SS_TAP(X_ENT));    
-        }   
-        SEQ_TWO_KEYS(KC_B, KC_C) {          
-            SEND_STRING(CLEAN_STRING SS_TAP(X_ENT));    
-        }   
-        SEQ_TWO_KEYS(KC_B, KC_R) {          
-            SEND_STRING(RELEASE_STRING SS_TAP(X_ENT));    
-        }
     }
 }
 
@@ -227,7 +326,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,            _______, 
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,            _______, 
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_LEAD, _______,          _______,            _______, 
-        _______,          _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          _______, _______,   _______, 
+        _______,          _______, _______, CMB_TOG, _______, _______, _______, _______, _______, _______, _______,          _______, _______,   _______, 
         _______, _______, _______,                             _______,                           _______, _______, _______, _______, _______,   _______),
 
 };
@@ -406,6 +505,13 @@ void rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
         rgb_matrix_set_color(LED_R8, RGB_ORANGE);
         rgb_matrix_set_color(LEB_RCTL, RGB_ORANGE);
         rgb_matrix_set_color(LED_SCLN, RGB_ORANGE);
+
+        if (is_combo_enabled()) {
+            rgb_matrix_set_color(LED_C, RGB_ORANGE);
+        } else {
+            rgb_matrix_set_color(LED_C, RGB_AZURE);
+        }
+
     } else {
         if (curr_layer != _BASE) {
             rgb_matrix_mode(RGB_MATRIX_CUSTOM_led_mask_0);
