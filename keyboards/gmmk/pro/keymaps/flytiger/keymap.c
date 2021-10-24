@@ -18,9 +18,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "rgb_matrix_map.h"
 #include "env.h"
 // TODO:
+// keep leaderkey with empty dictionary, manual verbose combo? adjust the timing for reduce false positive and false negatives
+// move leader key stuff into combos, 
+// add: git status (gs), git add (ga), git commit -m (gc), git push (gp), git switch (gw), git branch (gb), git checkout -b (gn), git commit --amend (gc), git rebase -i (gr) 
+// bc, br, bcr
 // light for while recording macro (red) and while running (green/white): https://www.reddit.com/r/MechanicalKeyboards/comments/f4mk5t/qmk_docsexamples_on_blinking_led_during_dynamic/
 // MO3 toggle layer with MO0 for Windows/Mac layout switch (modifer switch, macros from mac -> win), slowly remove Karbiner, Mac shortcut, switched mod layouts
-// line copy, line delete with shift backspace/enter using combos
 // refactor each feature into own file with include
 enum custom_layers {
     _BASE,
@@ -205,17 +208,17 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [_FN1] = LAYOUT(
         RESET,   DM_REC1, DM_REC2, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,            _______, 
-        _______, RGB_STA, RGB_GRA, RGB_CYC, RGB_M_P, RGB_M_B, RGB_M_R, RGB_MSK, _______, _______, _______, _______, _______, _______,            _______, 
-        RGB_TOG, RGB_HUD, RGB_VAI, RGB_HUI, _______, _______, _______, KC_PSCR, KC_SLCK, KC_PAUS, KC_NLCK, _______, _______, _______,            _______, 
-        KC_CAPS, RGB_SAD, RGB_VAD, RGB_SAI, _______, _______, _______, _______, _______, _______, _______, _______,          _______,            _______,
-        _______,          RGB_SPD, RGB_SPI, _______, _______, _______, _______, _______, _______, _______, _______,          _______, _______,   _______, 
-        _______, KC_WINLCK, _______,                             AG_TOGG,                         _______, _______, _______, _______, _______, _______),
+        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,            _______, 
+        _______, RGB_HUD, RGB_VAI, RGB_HUI, _______, _______, _______, _______, KC_SLCK, KC_PAUS, KC_PSCR, _______, _______, _______,            _______, 
+        _______, RGB_SAD, RGB_VAD, RGB_SAI, _______, _______, _______, _______, _______, _______, _______, _______,          _______,            _______,
+        _______,          _______, _______, _______, _______, _______, KC_NLCK, _______, _______, _______, _______,          _______, _______,   _______, 
+        _______, KC_WINLCK, _______,                             _______,                         _______, _______, _______, _______, _______, _______),
 
     [_MO2] = LAYOUT(
         _______, DM_PLY1,   DM_PLY2, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,            _______, 
-        _______, _______, CKC_EMAIL, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, CKC_DELL,            _______, 
+        _______, _______, CKC_EMAIL, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, CKC_DELL,           _______, 
         _______, _______,   _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,            _______, 
-        _______, _______,   _______, _______, _______, _______, _______, _______, _______, _______, KC_LEAD, _______,          CKC_PIN,            _______, 
+        _______, _______,   _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          CKC_PIN,            _______, 
         _______,            _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          _______, CKC_WUP,   _______, 
         CKC_HIBERNATE, _______, _______,                         _______,                           _______, _______, _______, CKC_WLFT,CKC_DWN,   CKC_RGT),
 
@@ -248,7 +251,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             return false;  // Skip all further processing of this key
         case RGB_MSK:
             if (record->event.pressed) {
-                rgb_matrix_mode(RGB_MATRIX_CUSTOM_led_mask);
+                rgb_matrix_mode(RGB_MATRIX_CUSTOM_led_mask_0);
             }
             return false;  // Skip all further processing of this key
         case KC_00:
@@ -329,8 +332,8 @@ void oneshot_mods_changed_user(uint8_t mods) {
         _isLAltOsmActived = false;
     }
 }
-
-
+ 
+enum custom_layers curr_layer = -1;
 #ifdef RGB_MATRIX_ENABLE
 // Capslock, Scroll lock and Numlock  indicator on Left side lights.
 void rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
@@ -364,32 +367,54 @@ void rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
         rgb_matrix_set_color(LED_SCLN, RGB_RED);
     }
 
-    // Layer indicators on right side lights.
+    // Layer lights
     if (layer_state_is(_FN1)) {
+        if (curr_layer != _FN1) {
+            rgb_matrix_mode(RGB_MATRIX_CUSTOM_led_mask_1);
+            curr_layer = _FN1;
+        }
+
         rgb_matrix_set_color(LED_R1, RGB_RED);
         rgb_matrix_set_color(LED_R2, RGB_RED);
         rgb_matrix_set_color(LED_R3, RGB_RED);
         rgb_matrix_set_color(LED_R4, RGB_RED);
         rgb_matrix_set_color(LED_RALT, RGB_RED);
-    }
+        rgb_matrix_set_color(LED_ESC, RGB_RED);
+    } else if (layer_state_is(_MO2)) {
+        if (curr_layer != _MO2) {
+            rgb_matrix_mode(RGB_MATRIX_CUSTOM_led_mask_2);
+            curr_layer = _MO2;
+        }
 
-    if (layer_state_is(_MO2)) {
-        rgb_matrix_set_color(LED_R5, RGB_AZURE);
-        rgb_matrix_set_color(LED_R6, RGB_AZURE);
-        rgb_matrix_set_color(LED_R7, RGB_AZURE);
-        rgb_matrix_set_color(LED_R8, RGB_AZURE);
-        rgb_matrix_set_color(LED_FN, RGB_AZURE);
-    }
+        rgb_matrix_set_color(LED_R5, RGB_SPRINGGREEN);
+        rgb_matrix_set_color(LED_R6, RGB_SPRINGGREEN);
+        rgb_matrix_set_color(LED_R7, RGB_SPRINGGREEN);
+        rgb_matrix_set_color(LED_R8, RGB_SPRINGGREEN);
+        rgb_matrix_set_color(LED_FN, RGB_SPRINGGREEN);
+        rgb_matrix_set_color(LED_LCTL, RGB_SPRINGGREEN);
+        rgb_matrix_set_color(LED_ENT, RGB_SPRINGGREEN);
+    } else if (layer_state_is(_MO3)) {
+        if (curr_layer != _MO3) {
+            rgb_matrix_mode(RGB_MATRIX_CUSTOM_led_mask_3);
+            curr_layer = _MO3;
+        }
 
-    if (layer_state_is(_MO3)) {
+
         rgb_matrix_set_color(LED_R5, RGB_ORANGE);
         rgb_matrix_set_color(LED_R6, RGB_ORANGE);
         rgb_matrix_set_color(LED_R7, RGB_ORANGE);
         rgb_matrix_set_color(LED_R8, RGB_ORANGE);
         rgb_matrix_set_color(LEB_RCTL, RGB_ORANGE);
+        rgb_matrix_set_color(LED_SCLN, RGB_ORANGE);
+    } else {
+        if (curr_layer != _BASE) {
+            rgb_matrix_mode(RGB_MATRIX_CUSTOM_led_mask_0);
+            curr_layer = _BASE;
+        }
     }
 
     switch (get_highest_layer(layer_state)) {  // special handling per layer
+        case _BASE:
         case _FN1:                             // on Fn layer select what the encoder does when pressed
             // Add RGB Timeout Indicator -- shows 0 to 139 using F row and num row;  larger numbers using 16bit code
             // if (timeout_threshold <= 10) rgb_matrix_set_color(LED_LIST_FUNCROW[timeout_threshold], RGB_RED);
