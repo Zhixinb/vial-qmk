@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "env.h"
 // TODO:
 // light for while recording macro (red) and while running (green/white): https://www.reddit.com/r/MechanicalKeyboards/comments/f4mk5t/qmk_docsexamples_on_blinking_led_during_dynamic/
+// or just simpler recording light when recording, and running light when running, custom keycode to wrap around start recording, use record_end_user for clearing reocording marker, use play_user when playing?
 // MO3 toggle layer with MO0 for Windows/Mac layout switch (modifer switch, macros from mac -> win), slowly remove Karbiner, Mac shortcut, switched mod layouts
 // refactor each feature into own file with include
 // upgrade VIAL with merging from flytiger branch (be careful, might brick device, baseline with basic keymap first)
@@ -43,6 +44,7 @@ enum combo_events {
   GIT_AMND,
   GIT_REBASE,
   GIT_ADOG,
+  GIT_DIFF,
   B_C,
   B_R,
   B_C_R,
@@ -60,6 +62,7 @@ const uint16_t PROGMEM git_chkout_combo[] = {KC_G, KC_K, COMBO_END};
 const uint16_t PROGMEM git_amnd_combo[] = {KC_G, KC_M, COMBO_END};
 const uint16_t PROGMEM git_rebase_combo[] = {KC_G, KC_R, COMBO_END};
 const uint16_t PROGMEM git_adog_combo[] = {KC_G, KC_L, COMBO_END};
+const uint16_t PROGMEM git_diff_combo[] = {KC_G, KC_D, COMBO_END};
 const uint16_t PROGMEM b_c_combo[] = {KC_B, KC_C, COMBO_END};
 const uint16_t PROGMEM b_r_combo[] = {KC_B, KC_R, COMBO_END};
 const uint16_t PROGMEM b_c_r_combo[] = {KC_B, KC_ENT, COMBO_END};
@@ -75,6 +78,7 @@ combo_t key_combos[] = {
   [GIT_AMND] = COMBO_ACTION(git_amnd_combo),
   [GIT_REBASE] = COMBO_ACTION(git_rebase_combo),
   [GIT_ADOG] = COMBO_ACTION(git_adog_combo),
+  [GIT_DIFF] = COMBO_ACTION(git_diff_combo), 
   [B_C] = COMBO_ACTION(b_c_combo),
   [B_R] = COMBO_ACTION(b_r_combo),
   [B_C_R] = COMBO_ACTION(b_c_r_combo),
@@ -132,7 +136,12 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
       if (pressed) {
         SEND_STRING("git log --all --decorate --oneline --graph");    
       }
-      break;                    
+      break;       
+    case GIT_DIFF:
+      if (pressed) {
+        SEND_STRING("git diff");    
+      }
+      break;              
     case B_C:
       if (pressed) {
         SEND_STRING(CLEAN_STRING);    
@@ -380,12 +389,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             return false;  // Skip all further processing of this key
         case CKC_HIBERNATE:
             if (record->event.pressed) {
-                SEND_STRING(SS_LGUI("x") SS_TAP(X_UP) SS_TAP(X_UP) SS_TAP(X_RGHT) SS_TAP(X_DOWN) SS_TAP(X_ENT));
+                SEND_STRING(SS_LGUI("x") SS_DELAY(200) SS_TAP(X_UP) SS_TAP(X_UP) SS_TAP(X_RGHT) SS_DELAY(200) SS_TAP(X_DOWN) SS_TAP(X_ENT));
             }
             return false;  // Skip all further processing of this key
         case CKC_PIN:
             if (record->event.pressed) {
-                SEND_STRING(" " SS_DELAY(200) PIN_STRING SS_TAP(X_ENT));
+                SEND_STRING(" " SS_DELAY(200) PIN_STRING SS_TAP(X_ENT) SS_DELAY(200) SS_TAP(X_ENT) );
             }
             return false;  // Skip all further processing of this key
         case CKC_WUP:
